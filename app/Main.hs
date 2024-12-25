@@ -2,7 +2,8 @@
 
 module Main where
 
-import AlphaRewrite
+import AlphaRewrite (alphaRewriteTask)
+import Task( Task(..) )
 import Data.Aeson (decode, encode)
 import qualified Data.ByteString.Lazy as BL
 import System.Environment (getArgs)

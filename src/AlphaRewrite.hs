@@ -1,34 +1,17 @@
-
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE DeriveGeneric     #-}
 {-# OPTIONS_GHC -Wall #-}
 
-module AlphaRewrite where
+module AlphaRewrite (alphaRewriteTask) where
 
 import Control.Monad.State
 import Data.Char (isSpace, isPunctuation, isSymbol, isAlpha, isDigit)
 import Data.Map  (Map)
-import qualified Data.Map as Map
 import Data.Text (Text)
+import qualified Data.Map as Map
 import qualified Data.Text as T
 
-import Data.Aeson (FromJSON, ToJSON)
-import GHC.Generics (Generic)
 
---------------------------------------------------------------------------------
--- 1. Define the Task data structure
---------------------------------------------------------------------------------
-
-data Task = Task
-  { task_id      :: Text
-  , poly_type    :: Text
-  , signature    :: Text
-  , code         :: Text
-  , dependencies :: [Text]
-  } deriving (Show, Generic)
-
-instance FromJSON Task
-instance ToJSON   Task
+import Task
 
 --------------------------------------------------------------------------------
 -- 2. The renaming environment

@@ -1,1 +1,22 @@
-module Task where
+{-# LANGUAGE DeriveGeneric     #-}
+
+module Task (Task(..)) where
+
+import Data.Aeson (FromJSON, ToJSON)
+import Data.Text (Text)
+import GHC.Generics (Generic)
+
+--------------------------------------------------------------------------------
+-- 1. Define the Task data structure
+--------------------------------------------------------------------------------
+
+data Task = Task
+  { task_id      :: Text
+  , poly_type    :: Text
+  , signature    :: Text
+  , code         :: Text
+  , dependencies :: [Text]
+  } deriving (Show, Generic)
+
+instance FromJSON Task
+instance ToJSON   Task
