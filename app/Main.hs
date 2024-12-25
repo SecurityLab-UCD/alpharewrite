@@ -14,7 +14,7 @@ main = do
   input <- case args of
              []      -> BL.getContents
              [file]  -> BL.readFile file
-             _       -> error "Usage: alpha-rename [tasks.json]"
+             _       -> error "Usage: alpharewrite [tasks.json]"
 
   -- We expect an array of tasks in the input JSON
   case decode input :: Maybe [Task] of
