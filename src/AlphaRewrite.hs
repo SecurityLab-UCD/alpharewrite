@@ -3,7 +3,7 @@
 {-# LANGUAGE DeriveGeneric     #-}
 {-# OPTIONS_GHC -Wall #-}
 
-module AlphaRenameJSON where
+module AlphaRewrite where
 
 import Control.Monad.State
 import Data.Char (isSpace, isPunctuation, isSymbol, isAlpha, isDigit)
@@ -34,19 +34,19 @@ instance ToJSON   Task
 -- 2. The renaming environment
 --------------------------------------------------------------------------------
 
-data RenameEnv = RenameEnv
-  { varEnv      :: Map Text Text  -- ^ rename table for lower-case vars/funs
-  , typeEnv     :: Map Text Text  -- ^ rename table for uppercase names
+data RewriteEnv = RewriteEnv
+  { varEnv      :: Map Text Text  -- ^ rewrite table for lower-case vars/funs
+  , typeEnv     :: Map Text Text  -- ^ rewrite table for uppercase names
   , classEnv    :: Map Text Text  -- ^ (optionally separate for classes)
-  , opEnv       :: Map Text Text  -- ^ rename table for operators
+  , opEnv       :: Map Text Text  -- ^ rewrite table for operators
   , nextVarNum  :: Int
   , nextTypeNum :: Int
   , nextClassNum:: Int
   , nextOpNum   :: Int
   } deriving (Show)
 
-initRenameEnv :: RenameEnv
-initRenameEnv = RenameEnv
+initRewriteEnv :: RewriteEnv
+initRewriteEnv = RewriteEnv
   { varEnv      = Map.empty
   , typeEnv     = Map.empty
   , classEnv    = Map.empty
@@ -57,24 +57,24 @@ initRenameEnv = RenameEnv
   , nextOpNum   = 1
   }
 
-type Renamer = State RenameEnv
+type Rewriter = State RewriteEnv
 
 --------------------------------------------------------------------------------
--- 3. Public function to rename a single Task
+-- 3. Public function to rewrite a single Task
 --------------------------------------------------------------------------------
 
-alphaRenameTask :: Task -> Task
-alphaRenameTask task =
+alphaRewriteTask :: Task -> Task
+alphaRewriteTask task =
   evalState (do
-    sig'  <- renameString (signature task)
-    code' <- renameString (code task)
-    deps' <- mapM renameString (dependencies task)
+    sig'  <- rewriteString (signature task)
+    code' <- rewriteString (code task)
+    deps' <- mapM rewriteString (dependencies task)
     pure task
       { signature    = sig'
       , code         = code'
       , dependencies = deps'
       }
-  ) initRenameEnv
+  ) initRewriteEnv
 
 --------------------------------------------------------------------------------
 -- 4. Reserved keywords/operators to skip rewriting
@@ -97,35 +97,35 @@ isReserved tok =
   tok `elem` reservedKeywords || tok `elem` reservedOperators
 
 --------------------------------------------------------------------------------
--- 5. Naive text-based rename:
+-- 5. Naive text-based rewrite:
 --    We tokenize the string, then handle special cases like `error "<msg>"`.
 --------------------------------------------------------------------------------
 
-renameString :: Text -> Renamer Text
-renameString txt = do
+rewriteString :: Text -> Rewriter Text
+rewriteString txt = do
   let tokens = tokenize txt
-  renamed <- renameTokens tokens
-  pure (T.concat renamed)
+  rewrited <- rewriteTokens tokens
+  pure (T.concat rewrited)
 
 --------------------------------------------------------------------------------
 -- 5a. The main loop for processing tokens
 --------------------------------------------------------------------------------
 
-renameTokens :: [Text] -> Renamer [Text]
-renameTokens [] = pure []
-renameTokens [t] = do
-  t' <- renameToken t
+rewriteTokens :: [Text] -> Rewriter [Text]
+rewriteTokens [] = pure []
+rewriteTokens [t] = do
+  t' <- rewriteToken t
   pure [t']
-renameTokens (t1 : t2 : rest)
+rewriteTokens (t1 : t2 : rest)
   -- If we see the exact token "error" followed (immediately) by a string literal:
   | t1 == "error" && isStringLiteral t2 =
       -- Keep them exactly as-is: no renaming for 'error' or the literal
-      (t1 :) . (t2 :) <$> renameTokens rest
+      (t1 :) . (t2 :) <$> rewriteTokens rest
 
-  -- Otherwise, rename t1 as usual, then proceed
+  -- Otherwise, rewrite t1 as usual, then proceed
   | otherwise = do
-      t1' <- renameToken t1
-      more <- renameTokens (t2 : rest)
+      t1' <- rewriteToken t1
+      more <- rewriteTokens (t2 : rest)
       pure (t1' : more)
 
 --------------------------------------------------------------------------------
@@ -198,11 +198,11 @@ isStringLiteral tk =
   && T.last tk == '"'
 
 --------------------------------------------------------------------------------
--- 7. renameToken
+-- 7. rewriteToken
 --------------------------------------------------------------------------------
 
-renameToken :: Text -> Renamer Text
-renameToken tok
+rewriteToken :: Text -> Rewriter Text
+rewriteToken tok
   -- 1. If it's all whitespace, keep as-is
   | T.all isSpace tok
   = pure tok
@@ -211,31 +211,31 @@ renameToken tok
   | isReserved tok
   = pure tok
 
-  -- 3. If purely punctuation/symbol => rename operator
+  -- 3. If purely punctuation/symbol => rewrite operator
   | T.all (\c -> isPunctuation c || isSymbol c) tok
   , not (T.null tok)
-  = renameOperator tok
+  = rewriteOperator tok
 
-  -- 4. If uppercase first letter => rename type/constructor/class
+  -- 4. If uppercase first letter => rewrite type/constructor/class
   | let c = T.head tok
   , c >= 'A' && c <= 'Z'
-  = renameTypeOrClass tok
+  = rewriteTypeOrClass tok
 
-  -- 5. If lowercase first letter => rename variable
+  -- 5. If lowercase first letter => rewrite variable
   | let c = T.head tok
   , c >= 'a' && c <= 'z'
-  = renameVar tok
+  = rewriteVar tok
 
   -- 6. Otherwise, keep as-is (numbers, string-literals, etc.)
   | otherwise
   = pure tok
 
 --------------------------------------------------------------------------------
--- 7a. renameOperator
+-- 7a. rewriteOperator
 --------------------------------------------------------------------------------
 
-renameOperator :: Text -> Renamer Text
-renameOperator orig = do
+rewriteOperator :: Text -> Rewriter Text
+rewriteOperator orig = do
   env <- get
   case Map.lookup orig (opEnv env) of
     Just newName -> pure newName
@@ -247,12 +247,12 @@ renameOperator orig = do
       pure freshOp
 
 --------------------------------------------------------------------------------
--- 7b. renameTypeOrClass
+-- 7b. rewriteTypeOrClass
 --     For simplicity, unify type constructors and classes in one map.
 --------------------------------------------------------------------------------
 
-renameTypeOrClass :: Text -> Renamer Text
-renameTypeOrClass orig = do
+rewriteTypeOrClass :: Text -> Rewriter Text
+rewriteTypeOrClass orig = do
   env <- get
   -- check if it’s known
   case Map.lookup orig (typeEnv env) of
@@ -267,11 +267,11 @@ renameTypeOrClass orig = do
       pure freshTy
 
 --------------------------------------------------------------------------------
--- 7c. renameVar
+-- 7c. rewriteVar
 --------------------------------------------------------------------------------
 
-renameVar :: Text -> Renamer Text
-renameVar orig = do
+rewriteVar :: Text -> Rewriter Text
+rewriteVar orig = do
   env <- get
   case Map.lookup orig (varEnv env) of
     Just newName -> pure newName
