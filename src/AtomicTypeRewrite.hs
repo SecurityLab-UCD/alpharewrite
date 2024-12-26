@@ -1,4 +1,3 @@
-
 {-# LANGUAGE OverloadedStrings #-}
 
 module AtomicTypeRewrite
@@ -6,6 +5,7 @@ module AtomicTypeRewrite
   ) where
 
 import Control.Monad (forM)
+import Data.Char (isUpper)
 import Data.Generics (everywhere, mkT, listify)
 import Data.List (nub)
 import qualified Data.Text as T
@@ -25,13 +25,7 @@ import Task (Task(..))
 import DeclParser (MyDecl, parseOneDecl, declToString)
 
 --------------------------------------------------------------------------------
--- 1) List of atomic types to rewrite
---------------------------------------------------------------------------------
-atomicTypes :: [String]
-atomicTypes = ["Int", "Bool", "Char", "IO", "()", "Handle"]
-
---------------------------------------------------------------------------------
--- 2) Gather all atomic types from a type signature
+-- 1) Gather all atomic types from a type signature
 --------------------------------------------------------------------------------
 gatherAtomicTypes :: Type SrcSpanInfo -> [String]
 gatherAtomicTypes ty =
@@ -39,7 +33,9 @@ gatherAtomicTypes ty =
   in nub [qNameToString n | TyCon _ n <- allAtoms]
   where
     isAtomicType :: Type SrcSpanInfo -> Bool
-    isAtomicType (TyCon _ n) = qNameToString n `elem` atomicTypes
+    isAtomicType (TyCon _ n) = case qNameToString n of
+      (x:_) -> isUpper x
+      _     -> False
     isAtomicType _           = False
 
     qNameToString :: QName SrcSpanInfo -> String
@@ -48,7 +44,7 @@ gatherAtomicTypes ty =
     qNameToString _                       = ""
 
 --------------------------------------------------------------------------------
--- 3) Rewrite atomic types in a type signature
+-- 2) Rewrite atomic types in a type signature
 --------------------------------------------------------------------------------
 renameAtomicTypes :: [(String, String)] -> Type SrcSpanInfo -> Type SrcSpanInfo
 renameAtomicTypes pairs = everywhere (mkT go)
@@ -72,7 +68,7 @@ renameAtomicTypes pairs = everywhere (mkT go)
     replaceQName qn _                     = qn
 
 --------------------------------------------------------------------------------
--- 4) Rewrite algebraic data types and their constructors
+-- 3) Rewrite algebraic data types and their constructors
 --------------------------------------------------------------------------------
 rewriteAlgebraicDataType :: [(String, String)] -> Decl SrcSpanInfo -> Decl SrcSpanInfo
 rewriteAlgebraicDataType pairs (DataDecl l d ctx declHead cons derivs) =
@@ -108,14 +104,14 @@ replaceName (Ident l _)  new = Ident l new
 replaceName (Symbol l _) new = Symbol l new
 
 --------------------------------------------------------------------------------
--- 5) Extract type from declaration
+-- 4) Extract type from declaration
 --------------------------------------------------------------------------------
 extractTypeFromDecl :: MyDecl -> Maybe (Type SrcSpanInfo)
 extractTypeFromDecl (TypeSig _ _ ty) = Just ty
 extractTypeFromDecl _                = Nothing
 
 --------------------------------------------------------------------------------
--- 6) Rewrite the task
+-- 5) Rewrite the task
 --------------------------------------------------------------------------------
 rewriteAtomicTypes :: Task -> Either String Task
 rewriteAtomicTypes t = do
@@ -153,10 +149,10 @@ rewriteAtomicTypes t = do
     }
 
 --------------------------------------------------------------------------------
--- 7) Rewrite code, including constructors
+-- 6) Rewrite code, including constructors
 --------------------------------------------------------------------------------
 rewriteCode :: [(String, String)] -> T.Text -> T.Text
 rewriteCode renameMap code =
   foldr (\(old, new) acc -> T.replace (T.pack old) (T.pack new) acc) code
     ([ (old, new) | (old, new) <- renameMap ] ++ 
-     [ (" " ++ old ++ " ", " " ++ new ++ " ") | (old, new) <- renameMap ])
+     [ (old, new) | (old, new) <- renameMap ])
