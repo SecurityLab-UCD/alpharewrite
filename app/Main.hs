@@ -10,6 +10,9 @@ import System.Environment (getArgs)
 import Task (Task (..))
 import Data.Either (rights)
 
+alphaRewrite :: Task -> Either String Task
+alphaRewrite task = renameFunctions task >>= rewriteTypeVars
+
 main :: IO ()
 main = do
   args <- getArgs
@@ -22,5 +25,5 @@ main = do
   case decode input :: Maybe [Task] of
     Nothing -> error "Could not parse JSON."
     Just tasks -> do
-      let renamed = rights (map rewriteTypeVars tasks)
+      let renamed = rights (map alphaRewrite tasks)
       BL.putStr (encode renamed)
