@@ -1,2 +1,7 @@
+import qualified TestFuncRewrite
+import qualified TestTypeVarRewrite
+
 main :: IO ()
-main = putStrLn "Test suite not yet implemented"
+main = do
+  TestFuncRewrite.testAll
+  TestTypeVarRewrite.testAll

@@ -25,9 +25,11 @@ source-repository head
 
 library
   exposed-modules:
+      DeclParser
       FunctionRewrite
       Lib
       Task
+      TypeVarRewrite
   other-modules:
       Paths_alpharewrite
   autogen-modules:
@@ -36,12 +38,14 @@ library
       src
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
-      aeson
+      HUnit
+    , aeson
     , array
     , base >=4.7 && <5
     , bytestring
     , containers
     , haskell-src-exts
+    , hspec
     , mtl
     , syb >=0.7
     , text
@@ -57,13 +61,15 @@ executable alpharewrite-exe
       app
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      aeson
+      HUnit
+    , aeson
     , alpharewrite
     , array
     , base >=4.7 && <5
     , bytestring
     , containers
     , haskell-src-exts
+    , hspec
     , mtl
     , syb >=0.7
     , text
@@ -73,6 +79,8 @@ test-suite alpharewrite-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      TestFuncRewrite
+      TestTypeVarRewrite
       Paths_alpharewrite
   autogen-modules:
       Paths_alpharewrite
@@ -80,13 +88,15 @@ test-suite alpharewrite-test
       test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      aeson
+      HUnit
+    , aeson
     , alpharewrite
     , array
     , base >=4.7 && <5
     , bytestring
     , containers
     , haskell-src-exts
+    , hspec
     , mtl
     , syb >=0.7
     , text
