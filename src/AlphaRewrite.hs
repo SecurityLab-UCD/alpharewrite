@@ -64,7 +64,8 @@ extractNamesFromTypeSig src = do
   decl <- parseOneDecl src
   case decl of
     TypeSig _ names _ -> Right (map nameToString names)
-    _ -> Left ("Not a type signature: " ++ src)
+    _ -> Right []
+    -- Left ("Not a type signature: " ++ src)
 
 -- Convert Name (with annotation) to a user-friendly string:
 --   Ident "not"   -> "not"
