@@ -7,6 +7,7 @@ import qualified Data.ByteString.Lazy as BL
 import FunctionRewrite (renameFunctions)
 import System.Environment (getArgs)
 import Task (Task (..))
+import Data.Either (rights)
 
 main :: IO ()
 main = do
@@ -20,5 +21,5 @@ main = do
   case decode input :: Maybe [Task] of
     Nothing -> error "Could not parse JSON."
     Just tasks -> do
-      let renamed = map renameFunctions tasks
+      let renamed = rights (map renameFunctions tasks)
       BL.putStr (encode renamed)
