@@ -2,7 +2,7 @@
 
 module Main where
 
-import AlphaRewrite (alphaRewriteTask)
+import FunctionRewrite (renameFunctions)
 import Task( Task(..) )
 import Data.Aeson (decode, encode)
 import qualified Data.ByteString.Lazy as BL
@@ -20,5 +20,5 @@ main = do
   case decode input :: Maybe [Task] of
     Nothing -> error "Could not parse JSON."
     Just tasks -> do
-      let renamed = map alphaRewriteTask tasks
+      let renamed = map renameFunctions tasks
       BL.putStr (encode renamed)

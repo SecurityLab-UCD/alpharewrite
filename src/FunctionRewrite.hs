@@ -1,9 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE DeriveGeneric #-}
 
-module AlphaRewrite (alphaRewriteTask) where
+module FunctionRewrite (renameFunctions) where
 
-import GHC.Generics (Generic)
 import Language.Haskell.Exts
   ( -- Parsing
     ParseMode(..), ParseResult(..), defaultParseMode, parseDeclWithMode
@@ -102,7 +100,7 @@ renameAll pairs decl =
   foldl' (\acc (o, n) -> renameName o n acc) decl pairs
 
 --------------------------------------------------------------------------------
--- 6) The main function: alphaRewriteTask
+-- 6) The main function: renameFunctions
 --
 --    - Gathers function/operator names from the signature + dependencies
 --      in the order they appear.
@@ -111,8 +109,8 @@ renameAll pairs decl =
 --    - Returns a new 'Task' with updated fields.
 --------------------------------------------------------------------------------
 
-alphaRewriteTask :: Task -> Either String Task
-alphaRewriteTask t = do
+renameFunctions :: Task -> Either String Task
+renameFunctions t = do
   ----------------------------------------------------------------
   -- (A) Gather all old names from:
   --     1) The 'signature'
