@@ -47,10 +47,10 @@ parseOneDecl src =
               EnableExtension
               [ MultiParamTypeClasses,
                 FlexibleContexts,
-                FlexibleInstances
+                FlexibleInstances, 
+                TypeFamilies
                 -- Further work: support more type extensions
                 -- , GADTs
-                -- , TypeFamilies
               ]
         }
 
