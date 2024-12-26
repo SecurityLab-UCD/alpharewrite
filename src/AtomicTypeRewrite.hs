@@ -9,6 +9,8 @@ import Data.Char (isUpper)
 import Data.Generics (everywhere, mkT, listify)
 import Data.List (nub)
 import qualified Data.Text as T
+import qualified Data.Text.Lazy as TL
+import qualified Data.Text.Lazy.Builder as Builder
 import Language.Haskell.Exts
   ( Decl (..),
     ConDecl (..),
@@ -149,10 +151,12 @@ rewriteAtomicTypes t = do
     }
 
 --------------------------------------------------------------------------------
--- 6) Rewrite code, including constructors
+-- 6) Rewrite code, ensuring whole word matches
 --------------------------------------------------------------------------------
 rewriteCode :: [(String, String)] -> T.Text -> T.Text
 rewriteCode renameMap code =
-  foldr (\(old, new) acc -> T.replace (T.pack old) (T.pack new) acc) code
-    ([ (old, new) | (old, new) <- renameMap ] ++ 
-     [ (old, new) | (old, new) <- renameMap ])
+  foldr replaceWord code renameMap
+  where
+    replaceWord (old, new) acc =
+      let pattern = TL.toStrict . Builder.toLazyText $ "\\b" <> Builder.fromText (T.pack old) <> "\\b"
+      in T.replace pattern (T.pack new) acc
