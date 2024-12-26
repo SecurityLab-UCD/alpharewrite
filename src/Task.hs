@@ -16,7 +16,7 @@ data Task = Task
   , signature    :: Text
   , code         :: Text
   , dependencies :: [Text]
-  } deriving (Show, Generic)
+  } deriving (Show, Generic, Eq)
 
 instance FromJSON Task
 instance ToJSON   Task

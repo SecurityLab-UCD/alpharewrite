@@ -5,6 +5,7 @@ module Main where
 import Data.Aeson (decode, encode)
 import qualified Data.ByteString.Lazy as BL
 import FunctionRewrite (renameFunctions)
+import TypeVarRewrite (rewriteTypeVars)
 import System.Environment (getArgs)
 import Task (Task (..))
 import Data.Either (rights)
@@ -21,5 +22,5 @@ main = do
   case decode input :: Maybe [Task] of
     Nothing -> error "Could not parse JSON."
     Just tasks -> do
-      let renamed = rights (map renameFunctions tasks)
+      let renamed = rights (map rewriteTypeVars tasks)
       BL.putStr (encode renamed)

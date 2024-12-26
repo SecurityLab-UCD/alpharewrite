@@ -29,7 +29,7 @@ library
       FunctionRewrite
       Lib
       Task
-      TypeRewrite
+      TypeVarRewrite
   other-modules:
       Paths_alpharewrite
   autogen-modules:
@@ -45,6 +45,7 @@ library
     , bytestring
     , containers
     , haskell-src-exts
+    , hspec
     , mtl
     , syb >=0.7
     , text
@@ -68,6 +69,7 @@ executable alpharewrite-exe
     , bytestring
     , containers
     , haskell-src-exts
+    , hspec
     , mtl
     , syb >=0.7
     , text
@@ -78,6 +80,7 @@ test-suite alpharewrite-test
   main-is: Spec.hs
   other-modules:
       TestFuncRewrite
+      TestTypeVarRewrite
       Paths_alpharewrite
   autogen-modules:
       Paths_alpharewrite
@@ -93,6 +96,7 @@ test-suite alpharewrite-test
     , bytestring
     , containers
     , haskell-src-exts
+    , hspec
     , mtl
     , syb >=0.7
     , text
