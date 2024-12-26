@@ -1,8 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module FunctionRewrite (renameFunctions) where
+module FunctionRewrite (renameFunctions, extractNamesFromTypeSig) where
 
--- Parsing
 
 -- AST Types
 
@@ -23,44 +22,9 @@ import Language.Haskell.Exts
     prettyPrint,
   )
 import Task (Task (..))
+import DeclParser (MyDecl, parseOneDecl, declToString)
 
 --------------------------------------------------------------------------------
--- 1) Decl type alias for convenience
---------------------------------------------------------------------------------
-type MyDecl = Decl SrcSpanInfo
-
---------------------------------------------------------------------------------
--- 2) Parsing a single top-level Haskell declaration
---------------------------------------------------------------------------------
-
-parseOneDecl :: String -> Either String MyDecl
-parseOneDecl src =
-  case parseDeclWithMode defaultMode src of
-    ParseOk d -> Right d
-    ParseFailed _ err -> Left ("Parse error: " ++ err)
-  where
-    defaultMode :: ParseMode
-    defaultMode =
-      defaultParseMode
-        { extensions =
-            map
-              EnableExtension
-              [ MultiParamTypeClasses,
-                FlexibleContexts,
-                FlexibleInstances, 
-                TypeFamilies
-                -- Further work: support more type extensions
-                -- , GADTs
-              ]
-        }
-
---------------------------------------------------------------------------------
--- 3) Convert a Decl back to string
---------------------------------------------------------------------------------
-
-declToString :: MyDecl -> String
-declToString = prettyPrint
-
 --------------------------------------------------------------------------------
 -- 4) Extract names (before "::") from a type signature
 --    E.g. "(==) :: Eq a => a -> a -> Bool" -> ["(==)"]

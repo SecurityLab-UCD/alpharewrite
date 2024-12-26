@@ -29,7 +29,7 @@ dependencies:
 - aeson
 - haskell-src-exts
 - syb >= 0.7
-# - syb
+- HUnit
 
 ghc-options:
 - -Wall
