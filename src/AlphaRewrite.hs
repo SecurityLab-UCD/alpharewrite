@@ -37,11 +37,11 @@ parseOneDecl src =
     defaultMode = defaultParseMode
       { extensions = map EnableExtension
           [ MultiParamTypeClasses
-          , TypeFamilies
           , FlexibleContexts
           , FlexibleInstances
-          , GADTs
-          -- Add more as needed
+          -- Further work: support more type extensions
+          -- , GADTs
+          -- , TypeFamilies
           ]
       }
 
