@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module FunctionRewrite (renameFunctions, extractNamesFromTypeSig) where
+module FunctionRewrite (renameFunctions, extractNamesFromTypeSig, nameToString) where
 
 
 -- AST Types
