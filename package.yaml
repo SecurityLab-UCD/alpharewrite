@@ -28,6 +28,7 @@ dependencies:
 - text
 - aeson
 - haskell-src-exts
+- syb >= 0.7
 # - syb
 
 ghc-options:
