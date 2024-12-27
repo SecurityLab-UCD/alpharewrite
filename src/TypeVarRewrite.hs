@@ -91,7 +91,7 @@ rewriteOneTypeSignature src = do
     Nothing -> Right src
     Just ty ->
       let vars      = gatherTypeVars ty
-          renameMap = zip vars [ "f" ++ show i | i <- [1..] ]
+          renameMap = zip vars [ "t" ++ show i | i <- [1..] ]
           tyRen     = renameTypeVars renameMap ty
           newDecl   = case decl of
                         TypeSig l names _ -> TypeSig l names tyRen
@@ -104,11 +104,10 @@ rewriteOneTypeSignature src = do
 
 rewriteDependencies :: [T.Text] -> Either String [T.Text]
 rewriteDependencies deps = do
-  newDeps <- forM deps $ \depLine -> do
+  forM deps $ \depLine -> do
     let depStr = T.unpack depLine
     newDepStr <- rewriteOneTypeSignature depStr
     pure (T.pack newDepStr)
-  pure newDeps
 
 --------------------------------------------------------------------------------
 -- 6) Main entry point

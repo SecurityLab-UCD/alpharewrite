@@ -25,6 +25,7 @@ source-repository head
 
 library
   exposed-modules:
+      AtomicTypeRewrite
       DeclParser
       FunctionRewrite
       Lib
@@ -79,6 +80,7 @@ test-suite alpharewrite-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      TestAtomicTypeRewrite
       TestFuncRewrite
       TestTypeVarRewrite
       Paths_alpharewrite

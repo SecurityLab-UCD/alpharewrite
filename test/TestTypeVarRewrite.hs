@@ -31,13 +31,13 @@ testRewriteOneTypeSignature = describe "rewriteOneTypeSignature" $ do
     let input  = "f :: a -> a"
     let output = rewriteOneTypeSignature input
     expectRight output $ \rewritten ->
-      rewritten `shouldBe` "f :: f1 -> f1"
+      rewritten `shouldBe` "f :: t1 -> t1"
 
   it "renames multiple type variables, ignoring the list constructor" $ do
     let input  = "g :: a -> [b] -> b"
     let output = rewriteOneTypeSignature input
     expectRight output $ \rewritten ->
-      rewritten `shouldBe` "g :: f1 -> [f2] -> f2"
+      rewritten `shouldBe` "g :: t1 -> [t2] -> t2"
 
   it "leaves monomorphic signature unchanged, e.g. 'h :: Int -> Bool'" $ do
     let input  = "h :: Int -> Bool"
@@ -64,8 +64,8 @@ testRewriteDependencies = describe "rewriteDependencies" $ do
           , "data X = Y Int"
           ]
     let expected =
-          [ "foldr :: (f1 -> f2 -> f2) -> f2 -> [f1] -> f2"
-          , "(++) :: [f1] -> [f1] -> [f1]"
+          [ "foldr :: (t1 -> t2 -> t2) -> t2 -> [t1] -> t2"
+          , "(++) :: [t1] -> [t1] -> [t1]"
           , "data X = Y Int"  -- data decl is unchanged
           ]
 
@@ -98,12 +98,12 @@ testRewriteTypeVarsInTask = describe "rewriteTypeVars" $ do
           Task
             { task_id      = "myTask"
             , poly_type    = "Parametric"
-            , signature    = "concatMap :: (f1 -> [f2]) -> [f1] -> [f2]"
+            , signature    = "concatMap :: (t1 -> [t2]) -> [t1] -> [t2]"
             , code         = "concatMap f = foldr ((++) . f) []"
             , dependencies =
-                [ "foldr :: (f1 -> f2 -> f2) -> f2 -> [f1] -> f2"
-                , "(++) :: [f1] -> [f1] -> [f1]"
-                , "(.) :: (f1 -> f2) -> (f3 -> f1) -> f3 -> f2"
+                [ "foldr :: (t1 -> t2 -> t2) -> t2 -> [t1] -> t2"
+                , "(++) :: [t1] -> [t1] -> [t1]"
+                , "(.) :: (t1 -> t2) -> (t3 -> t1) -> t3 -> t2"
                 ]
             }
 
