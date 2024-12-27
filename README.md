@@ -5,6 +5,8 @@
 We use `stack` version 3.1.1.
 We recommend using `ghc` version 8.6.6.
 
+NOTE: on Ubuntu 24.04, if you are new to Haskell, you may need to install `libgmp3-dev`.
+
 ## Usage
 
 ```bash
