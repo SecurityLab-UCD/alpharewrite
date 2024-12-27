@@ -104,11 +104,10 @@ rewriteOneTypeSignature src = do
 
 rewriteDependencies :: [T.Text] -> Either String [T.Text]
 rewriteDependencies deps = do
-  newDeps <- forM deps $ \depLine -> do
+  forM deps $ \depLine -> do
     let depStr = T.unpack depLine
     newDepStr <- rewriteOneTypeSignature depStr
     pure (T.pack newDepStr)
-  pure newDeps
 
 --------------------------------------------------------------------------------
 -- 6) Main entry point
