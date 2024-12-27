@@ -28,7 +28,7 @@ testSimpleRewrite = TestCase $ do
         { task_id = "test-id"
         , poly_type = "Monomorphic"
         , signature = "putChar :: T1 -> T2 ()"
-        , dependencies = ["stdout :: T3"]
+        , dependencies = ["stdout :: Handle"]
         , code = "putChar c = hPutChar stdout c"
         }
   case rewriteAtomicTypes task of
@@ -40,14 +40,14 @@ testAlgebraicRewrite :: Test
 testAlgebraicRewrite = TestCase $ do
   let task = defineTask
               "pred :: Bool -> Bool"
-              ["data Bool = False | True"]
+              ["data Bool = False\n        | True"]
               "pred True = False\npred False = error \"bad argument\""
       expected = Task
         { task_id = "test-id"
         , poly_type = "Monomorphic"
         , signature = "pred :: T1 -> T1"
-        , dependencies = ["data T1 = T2 | T3"]
-        , code = "pred T3 = T2\npred T2 = error \"bad argument\""
+        , dependencies = ["data T1 = False\n        | True"]
+        , code = "pred True = False\npred False = error \"bad argument\""
         }
   case rewriteAtomicTypes task of
     Right result -> assertEqual "Algebraic rewrite failed" expected result
