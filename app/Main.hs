@@ -21,7 +21,9 @@ main :: IO ()
 main = do
   args <- getArgs
   (func, input) <- case args of
-    [] -> error "Usage: alpharewrite [0|1|2] [tasks.json]"
+    [] -> do
+      input <- BL.getContents
+      return (alphaRewrite, input)
     [opt] -> do
       input <- BL.getContents
       return (selectFunction opt, input)
