@@ -7,7 +7,6 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import Test.HUnit
 
--- Helper function to create a Task
 defineTask :: Text -> [Text] -> Text -> Task
 defineTask sig deps code = Task
   { task_id = "test-id"

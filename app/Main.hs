@@ -12,6 +12,7 @@ import Task (Task (..))
 import Data.Either (rights)
 import Control.Monad ((>=>))
 
+-- | here composition should be *commutative*
 alphaRewrite :: Task -> Either String Task
 alphaRewrite =  rewriteTypeVars >=> rewriteAtomicTypes >=> renameFunctions
 

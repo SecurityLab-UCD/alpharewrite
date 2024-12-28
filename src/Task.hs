@@ -6,9 +6,6 @@ import Data.Aeson (FromJSON, ToJSON)
 import Data.Text (Text)
 import GHC.Generics (Generic)
 
---------------------------------------------------------------------------------
--- 1. Define the Task data structure
---------------------------------------------------------------------------------
 
 data Task = Task
   { task_id      :: Text

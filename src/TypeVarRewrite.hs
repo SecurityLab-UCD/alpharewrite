@@ -115,13 +115,10 @@ rewriteDependencies deps = do
 
 rewriteTypeVars :: Task -> Either String Task
 rewriteTypeVars t = do
-  -- (A) Rewrite the signature
   newSig <- rewriteOneTypeSignature (T.unpack $ signature t)
 
-  -- (B) Rewrite each dependency
   newDeps <- rewriteDependencies (dependencies t)
 
-  -- (C) Return updated Task (code left as is)
   pure t
     { signature    = T.pack newSig
     , dependencies = newDeps

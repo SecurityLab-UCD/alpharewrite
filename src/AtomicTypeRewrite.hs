@@ -117,7 +117,7 @@ extractTypeFromDecl _                = Nothing
 --------------------------------------------------------------------------------
 rewriteAtomicTypes :: Task -> Either String Task
 rewriteAtomicTypes t = do
-  -- (A) Rewrite the signature
+  -- Rewrite the signature
   decl <- parseOneDecl (T.unpack $ signature t)
   let Just ty = extractTypeFromDecl decl
       atomics = gatherAtomicTypes ty
@@ -127,7 +127,7 @@ rewriteAtomicTypes t = do
                   TypeSig l names _ -> TypeSig l names newTy
                   _                 -> decl
 
-  -- (B) Rewrite dependencies
+  -- Rewrite dependencies
   newDeps <- forM (dependencies t) $ \depLine -> do
     let depStr = T.unpack depLine
     case parseOneDecl depStr of
@@ -143,7 +143,7 @@ rewriteAtomicTypes t = do
         Right (T.pack $ declToString newDepDecl)
       Left err -> Left err
 
-  -- (C) Rewrite code, including constructors
+  -- Rewrite code, including constructors
   pure t
     { signature    = T.pack $ declToString newDecl
     , dependencies = newDeps

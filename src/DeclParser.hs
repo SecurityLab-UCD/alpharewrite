@@ -2,8 +2,6 @@
 module DeclParser (MyDecl, parseOneDecl, declToString) where
 
 
--- Parsing
-
 import Language.Haskell.Exts
   ( Decl (..),
     Extension (..),
@@ -16,14 +14,8 @@ import Language.Haskell.Exts
     prettyPrint,
   )
 
---------------------------------------------------------------------------------
--- 1) Decl type alias for convenience
---------------------------------------------------------------------------------
 type MyDecl = Decl SrcSpanInfo
 
---------------------------------------------------------------------------------
--- 2) Parsing a single top-level Haskell declaration
---------------------------------------------------------------------------------
 
 parseOneDecl :: String -> Either String MyDecl
 parseOneDecl src =
@@ -46,9 +38,6 @@ parseOneDecl src =
               ]
         }
 
---------------------------------------------------------------------------------
--- 3) Convert a Decl back to string
---------------------------------------------------------------------------------
 
 declToString :: MyDecl -> String
 declToString = prettyPrint

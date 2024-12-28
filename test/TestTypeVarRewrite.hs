@@ -13,9 +13,6 @@ import TypeVarRewrite
 
 import Task (Task (..))
 
---------------------------------------------------------------------------------
--- Helper Expectation: for Either
---------------------------------------------------------------------------------
 expectRight :: (HasCallStack, Show e) => Either e a -> (a -> Expectation) -> Expectation
 expectRight (Left err)  _ = expectationFailure ("Expected Right but got Left: " ++ show err)
 expectRight (Right val) f = f val
