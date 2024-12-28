@@ -97,22 +97,27 @@ renameFunctions t = do
     extractNamesFromTypeSig (T.unpack depStr)
 
   let allNames = sigNames ++ concat depNamesList
-      renameMap = zip allNames ["f" ++ show i | i <- [1 ..]]
-  -- e.g. [("(==)","f1"),("not","f2"),("(/=)","f3"),...]
+      renameMap = zip allNames ["f" ++ show i | i <- [1..]]
+      -- Identify which renamed names came from original operators (e.g. "(==)")
+      operatorRenames =
+        [ new
+        | (orig, new) <- renameMap
+        , "(" `isPrefixOf` orig && ")" `isSuffixOf` orig
+        ]
 
   ----------------------------------------------------------------
   -- (B) Parse & rename the signature
   ----------------------------------------------------------------
   sigDecl <- parseOneDecl (T.unpack $ signature t)
   let sigRen = renameAll renameMap sigDecl
-      newSig = unParenOps (declToString sigRen) 
+      newSig = unParenOps (declToString sigRen)
 
   ----------------------------------------------------------------
   -- (C) Parse & rename each dependency
   ----------------------------------------------------------------
   depDecls <- mapM (parseOneDecl . T.unpack) (dependencies t)
   let depRens = map (renameAll renameMap) depDecls
-      newDeps = map (unParenOps . declToString) depRens 
+      newDeps = map (unParenOps . declToString) depRens
 
   ----------------------------------------------------------------
   -- (D) Parse & rename the code
@@ -120,16 +125,20 @@ renameFunctions t = do
   ----------------------------------------------------------------
   codeDecl <- parseOneDecl (T.unpack $ code t)
   let codeRen = renameAll renameMap codeDecl
-      newCode = declToString codeRen
+      newCode =
+        let addTicks w
+              | w `elem` operatorRenames = "`" ++ w ++ "`"
+              | otherwise = w
+        in unwords . map addTicks . words . declToString $ codeRen
 
   ----------------------------------------------------------------
   -- (E) Return updated Task
   ----------------------------------------------------------------
   pure
     t
-      { signature = T.pack newSig,
-        dependencies = map T.pack newDeps,
-        code = T.pack newCode
+      { signature = T.pack newSig
+      , dependencies = map T.pack newDeps
+      , code = T.pack newCode
       }
 
 unParenOps :: String -> String
