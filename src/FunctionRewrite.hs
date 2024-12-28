@@ -7,7 +7,7 @@ module FunctionRewrite (renameFunctions, extractNamesFromTypeSig, nameToString) 
 
 import Control.Monad (forM)
 import Data.Generics (everywhere, mkT)
-import Data.List (foldl')
+import Data.List (foldl', isPrefixOf, isSuffixOf)
 import qualified Data.Text as T
 import Language.Haskell.Exts
   ( Decl (..),
@@ -105,14 +105,14 @@ renameFunctions t = do
   ----------------------------------------------------------------
   sigDecl <- parseOneDecl (T.unpack $ signature t)
   let sigRen = renameAll renameMap sigDecl
-      newSig = declToString sigRen
+      newSig = unParenOps (declToString sigRen) 
 
   ----------------------------------------------------------------
   -- (C) Parse & rename each dependency
   ----------------------------------------------------------------
   depDecls <- mapM (parseOneDecl . T.unpack) (dependencies t)
   let depRens = map (renameAll renameMap) depDecls
-      newDeps = map declToString depRens
+      newDeps = map (unParenOps . declToString) depRens 
 
   ----------------------------------------------------------------
   -- (D) Parse & rename the code
@@ -131,3 +131,10 @@ renameFunctions t = do
         dependencies = map T.pack newDeps,
         code = T.pack newCode
       }
+
+unParenOps :: String -> String
+unParenOps input =
+  let removeParen s
+        | "(" `isPrefixOf` s && ")" `isSuffixOf` s = tail (init s)
+        | otherwise = s
+  in unwords . map removeParen . words $ input
