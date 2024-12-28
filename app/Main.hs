@@ -13,7 +13,7 @@ import Data.Either (rights)
 import Control.Monad ((>=>))
 
 alphaRewrite :: Task -> Either String Task
-alphaRewrite = renameFunctions >=> rewriteTypeVars >=> rewriteAtomicTypes
+alphaRewrite =  rewriteTypeVars >=> rewriteAtomicTypes >=> renameFunctions
 
 rewriteTypes :: Task -> Either String Task
 rewriteTypes = rewriteTypeVars >=> rewriteAtomicTypes
