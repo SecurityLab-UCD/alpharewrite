@@ -11,7 +11,7 @@ NOTE: on Ubuntu 24.04, if you are new to Haskell, you may need to install `libgm
 
 ```bash
 stack build # compile the project
-stack exec alpharewrite-exe [1|2|3|4|5] <Benchmark-F.json> > Benchmark-F.pure.json
+stack exec alpharewrite-exe [1|2|3|4|5] <tfb.json> > tfbp.pure.json
 ```
 The options are:
 1. do all rewrites
@@ -24,16 +24,16 @@ If no option is provided, the default is 1.
 
 ## Description
 
-This tool rewrites Haskell tasks in Benchmark-F to remove natural language elements from the code,
-getting a NL-free alpha-equivalent version of the task.
+This tool rewrites Haskell tasks in (TF-Bench)[https://github.com/SecurityLab-UCD/TF-Bench] to remove natural language elements from the code,
+getting an NL-free alpha-equivalent version of the task.
 
 ### Rewriting "Atomic" Types
 
 This step removes natural language elements from the type signature,
 while ensuring that the type signature remains valid.
-Note that we do not change build-in special constructors like `()` or `[]`.
+Note that we do not change built-in special constructors like `()` or `[]`.
 
-For example, we rewrite task
+For example, we rewrite the task
 
 ```haskell
 -- dependencies
@@ -60,7 +60,7 @@ putChar :: T1 -> T2 ()
 ### Rewriting Type Variables
 
 This step rewrites all type variables in the code (likely `a`, `b`, ...) to `t1`, `t2`, etc.
-Since polymorphic types variables do not contains natural language from the beginning,
+Since polymorphic type variables do not contain natural language from the beginning,
 only doing this step *should* have little to no impact on LLM's performance.
 One example of this step is
 
