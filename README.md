@@ -24,7 +24,7 @@ If no option is provided, the default is 1.
 
 ## Description
 
-This tool rewrites Haskell tasks in (TF-Bench)[https://github.com/SecurityLab-UCD/TF-Bench] to remove natural language elements from the code,
+This tool rewrites Haskell tasks in [TF-Bench](https://github.com/SecurityLab-UCD/TF-Bench) to remove natural language elements from the code,
 getting an NL-free alpha-equivalent version of the task.
 
 ### Rewriting "Atomic" Types
